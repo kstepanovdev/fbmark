@@ -56,6 +56,14 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>, bmarks: &Book
 }
 
 pub fn get_lines<'a>(bmarks: &'a Bookmarks, search_string: &String) -> tui::text::Text<'a> {
+    if *search_string == String::from("") {
+        let mut lines = vec![String::from("")];
+        for bmark in &bmarks.bookmarks {
+            lines.push(bmark.url.clone());
+        }
+        return Text::from(lines.join("\r\n"))
+    }
+
     let mut lines: Vec<Line> = vec![];
 
     for bmark in &bmarks.bookmarks {
