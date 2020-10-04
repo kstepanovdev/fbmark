@@ -1,5 +1,5 @@
 mod ui;
-mod app;
+mod app; 
 
 use std::io::{
     Write,
@@ -18,25 +18,45 @@ use termion::{
     },
     raw::IntoRawMode,
 };
+use app::App;
+use app::{Bookmark, Bookmarks};
+
+use tui::Terminal;
+use tui::backend::TermionBackend;
 
 fn main() -> Result<(), Error> {
     let stdin = stdin();
     let mut stdout = MouseTerminal::from(stdout().into_raw_mode().unwrap());
-    let mut app = app::App::new();
+    let mut app = App::new();
 
-    loop {
-        ui::draw();
+    let backend = TermionBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
 
-        for c in stdin.events() {
-            let evt = c.unwrap();
-            match evt {
-                Event::Key(Esc) => break,
-                Event::Key(Key::Char(c)) => { app.add_char(c) },
+    terminal.clear()?;
+
+    let b1 = Bookmark::new(String::from("https://lichess.org/")); 
+    let b2 = Bookmark::new(String::from("https://github.com/")); 
+    let bmarks_array: Vec<Bookmark> = vec![b1, b2]; 
+    let bmarks = Bookmarks::new(bmarks_array);
+
+    ui::draw(&mut app, &mut terminal, &bmarks);
+
+    // loop {
+        for c in stdin.keys() {
+            match c.unwrap() {
+                Key::Esc => break,
+                Key::Backspace => app.remove_char(),
+                Key::Ctrl('u') => app.wipe_line(),
+                Key::Char(c) => { app.add_char(c) },
                 _ => {}
             }
-            stdout.flush().unwrap();
+            ui::draw(&mut app, &mut terminal, &bmarks);
         }
-    }
+
+
+    // }
+
+    Ok(())
 }
 
 // struct Bookmark {
