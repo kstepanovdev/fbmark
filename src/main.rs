@@ -34,11 +34,10 @@ fn main() -> Result<(), Error> {
 
     terminal.clear()?;
 
-    let b1 = Bookmark::new(String::from("https://lichess.org/")); 
-    let b2 = Bookmark::new(String::from("https://github.com/")); 
-    let bmarks_array: Vec<Bookmark> = vec![b1, b2]; 
-    let bmarks = Bookmarks::new(bmarks_array);
-
+    let mut bmarks = Bookmarks::new();
+    bmarks.add_bookmark(Bookmark::new(String::from("https://lichess.org/"))); 
+    bmarks.add_bookmark(Bookmark::new(String::from("https://github.com/")));
+    
     ui::draw(&mut app, &mut terminal, &bmarks);
 
     // loop {

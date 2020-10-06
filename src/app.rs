@@ -24,14 +24,16 @@ pub enum Event<I> {
 } 
 
 pub struct Bookmarks {
-    pub bookmarks: Vec<Bookmark>
+    pub items: Vec<Bookmark>
 }
 
 impl Bookmarks {
-    pub fn new(bookmarks: Vec<Bookmark>) -> Bookmarks {
-        Bookmarks {
-            bookmarks
-        }
+    pub fn new() -> Bookmarks {
+        Bookmarks { items: Vec::new() }
+    }
+    
+    pub fn add_bookmark(&mut self, bookmark: Bookmark) {
+        self.items.push(bookmark);
     }
 }
 
