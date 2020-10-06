@@ -27,18 +27,18 @@ use tui::backend::TermionBackend;
 fn main() -> Result<(), Error> {
     let stdin = stdin();
     let mut stdout = MouseTerminal::from(stdout().into_raw_mode().unwrap());
-    let mut app = App::new();
 
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
     terminal.clear()?;
 
-    let mut bmarks = Bookmarks::new();
-    bmarks.add_bookmark(Bookmark::new(String::from("https://lichess.org/"))); 
-    bmarks.add_bookmark(Bookmark::new(String::from("https://github.com/")));
-    
-    ui::draw(&mut app, &mut terminal, &bmarks);
+    let mut bookmarks = Bookmarks::new();
+    bookmarks.add_bookmark(Bookmark::new(String::from("https://lichess.org/")));
+    bookmarks.add_bookmark(Bookmark::new(String::from("https://github.com/")));
+    let mut app = App::new(bookmarks);
+
+    ui::draw(&mut app, &mut terminal);
 
     // loop {
         for c in stdin.keys() {
@@ -49,10 +49,8 @@ fn main() -> Result<(), Error> {
                 Key::Char(c) => { app.add_char(c) },
                 _ => {}
             }
-            ui::draw(&mut app, &mut terminal, &bmarks);
+            ui::draw(&mut app, &mut terminal);
         }
-
-
     // }
 
     Ok(())

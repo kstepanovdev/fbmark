@@ -1,11 +1,13 @@
 pub struct App {
-    pub search_string: String
+    pub search_string: String,
+    pub bookmarks: Bookmarks
 }
 
 impl App {
-    pub fn new() -> App {
+    pub fn new(bookmarks: Bookmarks) -> App {
         App {
            search_string: String::from(""),
+           bookmarks: bookmarks
         }
     }
     pub fn add_char(&mut self, c: char) {
@@ -38,13 +40,15 @@ impl Bookmarks {
 }
 
 pub struct Bookmark {
-    pub url: String
+    pub url: String,
+    tags: Vec<String>,
 }
 
 impl Bookmark {
     pub fn new(url: String) -> Bookmark {
         Bookmark {
-            url
+            url,
+            tags: Vec::new()
         }
     }
 }

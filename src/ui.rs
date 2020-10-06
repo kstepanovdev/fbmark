@@ -15,7 +15,7 @@ use tui::{
 use super::app::{App, Bookmark, Bookmarks};
 use sublime_fuzzy::best_match;
 
-pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>, bmarks: &Bookmarks) -> Result<(), io::Error> {
+pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(), io::Error> {
     terminal.draw(|f| {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -41,7 +41,7 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>, bmarks: &Book
         f.render_widget(input, chunks[0]);
 
                 
-        let lines = get_lines(bmarks, &app.search_string);
+        let lines = get_lines(&app.bookmarks, &app.search_string);
         let input = Paragraph::new(lines).block(
             Block::default()
                 .borders(Borders::ALL)
