@@ -1,7 +1,7 @@
 use std::io;
 use tui::{
     Terminal,
-    backend::TermionBackend,
+    backend::Backend,
     widgets::{Widget, Block, Borders, Paragraph},
     layout::{
         Layout, 
@@ -12,15 +12,10 @@ use tui::{
     style::{Style, Color},
 };
 
-use termion::raw::IntoRawMode;
+use super::app::{App, Bookmark, Bookmarks};
+use sublime_fuzzy::best_match;
 
-pub fn draw() -> Result<(), io::Error> {
-    print!("{}{}", termion::clear::All, termion::cursor::Goto(1, 1));
-
-    let stdout = io::stdout().into_raw_mode()?;
-    let backend = TermionBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
-
+pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(), io::Error> {
     terminal.draw(|f| {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -33,8 +28,8 @@ pub fn draw() -> Result<(), io::Error> {
             )
             .split(f.size());
 
-        let input_string: String = app.input.iter().collect();
-        let lines = Text::from((&input_string).as_str());
+        let input_string = &app.search_string;
+        let lines = Text::from((input_string).as_str());
         let input = Paragraph::new(lines).block(
             Block::default()
                 .borders(Borders::ALL)
@@ -45,9 +40,51 @@ pub fn draw() -> Result<(), io::Error> {
             );
         f.render_widget(input, chunks[0]);
 
-        let block = Block::default()
-             .title("Links")
-             .borders(Borders::ALL);
-        f.render_widget(block, chunks[1]);
+                
+        let lines = get_lines(&mut app.bookmarks, &app.search_string, &mut app.filtered_bookmarks);
+        let input = Paragraph::new(lines).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(Span::styled(
+                "Bookmarks",
+                Style::default().fg(Color::White).bg(Color::Black),     
+                ))
+            );
+        f.render_widget(input, chunks[1]);
+
     })
+}
+
+pub fn get_lines<'a>(bmarks: &'a mut Bookmarks, search_string: &String, filtered_bmarks: &mut Vec<Bookmark>) -> tui::text::Text<'a> {
+    // TODO: try to remove dereferencing && decrease number of parameters
+
+    if *search_string == String::from("") {
+        let urls: Vec<String> = bmarks.collect_urls();
+        return Text::from(urls.join("\r\n"))
+    }
+
+    let mut lines: Vec<Line> = vec![];
+    for bmark in &bmarks.items {
+        match best_match(search_string, &bmark.url) {
+            Some(value) => { 
+                lines.push(Line::new(value.score(), bmark.clone()));
+            },
+            None => {}
+        }
+    }
+
+    lines.sort_by_key(|x| x.score);
+    *filtered_bmarks = lines.into_iter().map(|x| x.bmark).collect();
+    let result: Vec<String> = filtered_bmarks.iter().map(|x| x.url()).collect();
+    Text::from(result.join("\r\n"))
+}
+
+pub struct Line {
+    score: isize,
+    bmark: Bookmark,
+}
+impl Line {
+    pub fn new(score: isize, bmark: Bookmark) -> Line {
+        Line { score, bmark }
+    }
 }
