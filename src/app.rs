@@ -1,13 +1,13 @@
 pub struct App {
     pub search_string: String,
-    pub bookmarks: Bookmarks
+    pub bookmarks: Bookmarks,
 }
 
 impl App {
     pub fn new(bookmarks: Bookmarks) -> App {
         App {
            search_string: String::from(""),
-           bookmarks: bookmarks
+           bookmarks: bookmarks,
         }
     }
     pub fn add_char(&mut self, c: char) {
@@ -26,16 +26,21 @@ pub enum Event<I> {
 } 
 
 pub struct Bookmarks {
-    pub items: Vec<Bookmark>
+    pub items: Vec<Bookmark>,
+    pub selected_item_idx: isize
 }
 
 impl Bookmarks {
     pub fn new() -> Bookmarks {
-        Bookmarks { items: Vec::new() }
+        Bookmarks { items: Vec::new(), selected_item_idx: 0 }
     }
     
     pub fn add_bookmark(&mut self, bookmark: Bookmark) {
         self.items.push(bookmark);
+    }
+
+    pub fn collect_urls(&self) -> Vec<String> {
+        self.items.iter().map(|bookmark| bookmark.url()).collect()
     }
 }
 
@@ -51,6 +56,7 @@ impl Bookmark {
             tags: Vec::new()
         }
     }
+    pub fn url(&self) -> String {
+        self.url.clone()
+    }
 }
-
-

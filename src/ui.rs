@@ -41,7 +41,7 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
         f.render_widget(input, chunks[0]);
 
                 
-        let lines = get_lines(&app.bookmarks, &app.search_string);
+        let lines = get_lines(&mut app.bookmarks, &app.search_string);
         let input = Paragraph::new(lines).block(
             Block::default()
                 .borders(Borders::ALL)
@@ -55,17 +55,13 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
     })
 }
 
-pub fn get_lines<'a>(bmarks: &'a Bookmarks, search_string: &String) -> tui::text::Text<'a> {
+pub fn get_lines<'a>(bmarks: &'a mut Bookmarks, search_string: &String) -> tui::text::Text<'a> {
     if *search_string == String::from("") {
-        let mut lines = vec![String::from("")];
-        for bmark in &bmarks.items {
-            lines.push(bmark.url.clone());
-        }
-        return Text::from(lines.join("\r\n"))
+        let urls: Vec<String> = bmarks.collect_urls();
+        return Text::from(urls.join("\r\n"))
     }
 
     let mut lines: Vec<Line> = vec![];
-
     for bmark in &bmarks.items {
         match best_match(search_string, &bmark.url) {
             Some(value) => { 
@@ -75,6 +71,7 @@ pub fn get_lines<'a>(bmarks: &'a Bookmarks, search_string: &String) -> tui::text
             None => {}
         }
     }
+
     let mut sorted_lines: Vec<String> = vec![];
     for line in lines {
         sorted_lines.push(line.bmark_url); 

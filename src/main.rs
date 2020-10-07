@@ -43,7 +43,10 @@ fn main() -> Result<(), Error> {
     // loop {
         for c in stdin.keys() {
             match c.unwrap() {
-                Key::Esc => break,
+                Key::Esc => {
+                    terminal.clear()?;
+                    break
+                },
                 Key::Backspace => app.remove_char(),
                 Key::Ctrl('u') => app.wipe_line(),
                 Key::Char(c) => { app.add_char(c) },
