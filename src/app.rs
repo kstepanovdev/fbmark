@@ -1,13 +1,19 @@
+extern crate open;
+
 pub struct App {
     pub search_string: String,
     pub bookmarks: Bookmarks,
+    pub filtered_bookmarks: Vec<Bookmark>,
+    pub selected_bookmark_idx: usize,
 }
 
 impl App {
     pub fn new(bookmarks: Bookmarks) -> App {
         App {
            search_string: String::from(""),
-           bookmarks: bookmarks,
+            filtered_bookmarks: bookmarks.items.clone(),
+            bookmarks: bookmarks,
+            selected_bookmark_idx: 0
         }
     }
     pub fn add_char(&mut self, c: char) {
@@ -18,6 +24,20 @@ impl App {
     }
     pub fn wipe_line(&mut self) {
         self.search_string = String::from("");
+    }
+    pub fn on_up(&mut self) {
+        if self.selected_bookmark_idx > 0 {
+            self.selected_bookmark_idx -= 1;
+        }
+    }
+    pub fn on_down(&mut self) {
+        if self.selected_bookmark_idx < self.filtered_bookmarks.len() - 1 {
+            self.selected_bookmark_idx += 1;
+        }
+    }
+    pub fn open_bookmark(&self) {
+        let url = self.filtered_bookmarks[self.selected_bookmark_idx].url();
+        open::that(url).unwrap();
     }
 }
 
@@ -44,6 +64,7 @@ impl Bookmarks {
     }
 }
 
+#[derive(Clone)]
 pub struct Bookmark {
     pub url: String,
     tags: Vec<String>,

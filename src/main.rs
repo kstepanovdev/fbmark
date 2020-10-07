@@ -48,6 +48,9 @@ fn main() -> Result<(), Error> {
                     break
                 },
                 Key::Backspace => app.remove_char(),
+                Key::Up => app.on_up(),
+                Key::Down => app.on_down(),
+                Key::Char('\n') => app.open_bookmark(),
                 Key::Ctrl('u') => app.wipe_line(),
                 Key::Char(c) => { app.add_char(c) },
                 _ => {}
