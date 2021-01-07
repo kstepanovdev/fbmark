@@ -115,7 +115,7 @@ impl Bookmarks {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Bookmark {
     pub url: String,
     tags: Vec<String>,
