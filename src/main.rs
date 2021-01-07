@@ -52,6 +52,7 @@ fn main() -> Result<(), Error> {
                 Key::Down => app.on_down(),
                 Key::Char('\n') => app.resolve_enter(),
                 Key::Ctrl('u') => app.wipe_line(),
+                Key::Ctrl('v') => app.paste_from_clipboard(),
                 Key::Char('`') => { app.change_mode() },
                 Key::Char(c) => { app.add_char(c) },
                 _ => {}

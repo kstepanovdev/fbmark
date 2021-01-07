@@ -1,4 +1,8 @@
 extern crate open;
+extern crate clipboard;
+
+use clipboard::ClipboardProvider;
+use clipboard::ClipboardContext;
 
 pub struct App {
     pub current_mode: Mode,
@@ -67,6 +71,20 @@ impl App {
             Mode::AddBookmark => { self.current_mode = Mode::Search },
         }
     }
+
+    pub fn paste_from_clipboard(&mut self) {
+        let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+        match ctx.get_contents() {
+            Ok(payload) => {
+                for c in payload.chars() {
+                    self.select_field().push(c);
+                }
+            },
+            Err(e) => {
+                // return Err(e)
+            },
+        };
+    }
 }
 
 pub enum Mode {
@@ -97,7 +115,7 @@ impl Bookmarks {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Bookmark {
     pub url: String,
     tags: Vec<String>,

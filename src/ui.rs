@@ -90,6 +90,7 @@ pub fn get_lines<'a>(bmarks: &'a mut Bookmarks, search_string: &String, filtered
     // TODO: try to remove dereferencing && decrease number of parameters
 
     if *search_string == String::from("") {
+        *filtered_bmarks = bmarks.items.clone();
         return bmarks.collect_urls()
     }
 
