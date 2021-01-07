@@ -2,7 +2,7 @@ use std::io;
 use tui::{
     Terminal,
     backend::Backend,
-    widgets::{Widget, Block, Borders, Paragraph},
+    widgets::{Widget, Block, Borders, Paragraph, Row, Table},
     layout::{
         Layout, 
         Constraint, 
@@ -23,7 +23,8 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
             .constraints(
                 [
                     Constraint::Percentage(10),
-                    Constraint::Percentage(90),
+                    Constraint::Percentage(60),
+                    Constraint::Percentage(20),
                 ].as_ref()
             )
             .split(f.size());
@@ -40,27 +41,53 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
             );
         f.render_widget(input, chunks[0]);
 
-                
-        let lines = get_lines(&mut app.bookmarks, &app.search_string, &mut app.filtered_bookmarks);
+        let selected_style = Style::default().fg(Color::Yellow);
+        let normal_style = Style::default().fg(Color::White);
+        let bmark_rows = get_lines(&mut app.bookmarks, &app.search_string, &mut app.filtered_bookmarks);
+
+        let mut i = 0;
+        let kek = bmark_rows.clone().into_iter().map(|x|
+            if i == app.selected_bookmark_idx {
+                i += 1;
+                Row::StyledData(vec![x].into_iter(), selected_style)
+            } else {
+                i += 1;
+                Row::StyledData(vec![x].into_iter(), normal_style)
+            }
+        );
+
+        let bmarks_count: String = app.filtered_bookmarks.len().to_string();
+        let highlighted_bmarks_title = ["Found bookmarks: ".to_string() + &bmarks_count];
+        let t = Table::new(highlighted_bmarks_title.iter(), kek)
+            .block(Block::default().borders(Borders::ALL).title("Bookmarks"))
+            .highlight_style(selected_style)
+            .widths(&[
+                Constraint::Percentage(50),
+                Constraint::Length(30),
+                Constraint::Max(10),
+            ]);
+
+        f.render_widget(t, chunks[1]);
+
+        let input_string = &app.search_string;
+        let lines = Text::from((input_string).as_str());
         let input = Paragraph::new(lines).block(
             Block::default()
                 .borders(Borders::ALL)
                 .title(Span::styled(
-                "Bookmarks",
+                "Search",
                 Style::default().fg(Color::White).bg(Color::Black),     
                 ))
             );
-        f.render_widget(input, chunks[1]);
-
+        f.render_widget(input, chunks[0]);
     })
 }
 
-pub fn get_lines<'a>(bmarks: &'a mut Bookmarks, search_string: &String, filtered_bmarks: &mut Vec<Bookmark>) -> tui::text::Text<'a> {
+pub fn get_lines<'a>(bmarks: &'a mut Bookmarks, search_string: &String, filtered_bmarks: &mut Vec<Bookmark>) -> Vec<String> {
     // TODO: try to remove dereferencing && decrease number of parameters
 
     if *search_string == String::from("") {
-        let urls: Vec<String> = bmarks.collect_urls();
-        return Text::from(urls.join("\r\n"))
+        return bmarks.collect_urls()
     }
 
     let mut lines: Vec<Line> = vec![];
@@ -75,8 +102,7 @@ pub fn get_lines<'a>(bmarks: &'a mut Bookmarks, search_string: &String, filtered
 
     lines.sort_by_key(|x| x.score);
     *filtered_bmarks = lines.into_iter().map(|x| x.bmark).collect();
-    let result: Vec<String> = filtered_bmarks.iter().map(|x| x.url()).collect();
-    Text::from(result.join("\r\n"))
+    filtered_bmarks.into_iter().map(|x| x.url()).collect()
 }
 
 pub struct Line {

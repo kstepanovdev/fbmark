@@ -31,7 +31,7 @@ impl App {
         }
     }
     pub fn on_down(&mut self) {
-        if self.selected_bookmark_idx < self.filtered_bookmarks.len() - 1 {
+        if self.selected_bookmark_idx != self.filtered_bookmarks.len() - 1 {
             self.selected_bookmark_idx += 1;
         }
     }
