@@ -1,7 +1,9 @@
 extern crate open;
 
 pub struct App {
+    pub current_mode: Mode,
     pub search_string: String,
+    pub new_bookmark_name: String,
     pub bookmarks: Bookmarks,
     pub filtered_bookmarks: Vec<Bookmark>,
     pub selected_bookmark_idx: usize,
@@ -10,20 +12,22 @@ pub struct App {
 impl App {
     pub fn new(bookmarks: Bookmarks) -> App {
         App {
-           search_string: String::from(""),
+            current_mode: Mode::Search,
+            search_string: String::from(""),
+            new_bookmark_name: String::from(""),
             filtered_bookmarks: bookmarks.items.clone(),
             bookmarks: bookmarks,
             selected_bookmark_idx: 0
         }
     }
     pub fn add_char(&mut self, c: char) {
-        self.search_string.push(c);
+        self.select_field().push(c)
     }
     pub fn remove_char(&mut self) {
-        self.search_string.pop();
+        self.select_field().pop();
     }
     pub fn wipe_line(&mut self) {
-        self.search_string = String::from("");
+        *self.select_field() = String::from("");
     }
     pub fn on_up(&mut self) {
         if self.selected_bookmark_idx > 0 {
@@ -35,10 +39,39 @@ impl App {
             self.selected_bookmark_idx += 1;
         }
     }
-    pub fn open_bookmark(&self) {
-        let url = self.filtered_bookmarks[self.selected_bookmark_idx].url();
-        open::that(url).unwrap();
+    pub fn resolve_enter(&mut self) {
+        match self.current_mode {
+            Mode::Search => {
+                let url = self.filtered_bookmarks[self.selected_bookmark_idx].url();
+                open::that(url).unwrap();
+            }
+            Mode::AddBookmark => {
+                let bmark_name = self.new_bookmark_name.clone();
+                self.new_bookmark_name = "".to_string();
+                self.bookmarks.add_bookmark(Bookmark::new(bmark_name));
+                self.current_mode = Mode::Search;
+            }
+        }
     }
+
+    pub fn select_field(&mut self) -> &mut String {
+        match self.current_mode {
+            Mode::Search => { &mut self.search_string },
+            Mode::AddBookmark => { &mut self.new_bookmark_name },
+        }
+    }
+
+    pub fn change_mode(&mut self) {
+        match self.current_mode {
+            Mode::Search => { self.current_mode = Mode::AddBookmark },
+            Mode::AddBookmark => { self.current_mode = Mode::Search },
+        }
+    }
+}
+
+pub enum Mode {
+    Search,
+    AddBookmark
 }
 
 pub enum Event<I> {
@@ -47,12 +80,12 @@ pub enum Event<I> {
 
 pub struct Bookmarks {
     pub items: Vec<Bookmark>,
-    pub selected_item_idx: isize
+    pub highlighted_item_idx: isize
 }
 
 impl Bookmarks {
     pub fn new() -> Bookmarks {
-        Bookmarks { items: Vec::new(), selected_item_idx: 0 }
+        Bookmarks { items: Vec::new(), highlighted_item_idx: 0 }
     }
     
     pub fn add_bookmark(&mut self, bookmark: Bookmark) {

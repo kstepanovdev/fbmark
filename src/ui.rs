@@ -29,6 +29,7 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
             )
             .split(f.size());
 
+        // search input field
         let input_string = &app.search_string;
         let lines = Text::from((input_string).as_str());
         let input = Paragraph::new(lines).block(
@@ -36,17 +37,18 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
                 .borders(Borders::ALL)
                 .title(Span::styled(
                 "Search",
-                Style::default().fg(Color::White).bg(Color::Black),     
+                Style::default().fg(Color::White),
                 ))
             );
         f.render_widget(input, chunks[0]);
 
+        // selection panel
         let selected_style = Style::default().fg(Color::Yellow);
         let normal_style = Style::default().fg(Color::White);
         let bmark_rows = get_lines(&mut app.bookmarks, &app.search_string, &mut app.filtered_bookmarks);
 
         let mut i = 0;
-        let kek = bmark_rows.clone().into_iter().map(|x|
+        let selection_panel = bmark_rows.clone().into_iter().map(|x|
             if i == app.selected_bookmark_idx {
                 i += 1;
                 Row::StyledData(vec![x].into_iter(), selected_style)
@@ -58,7 +60,7 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
 
         let bmarks_count: String = app.filtered_bookmarks.len().to_string();
         let highlighted_bmarks_title = ["Found bookmarks: ".to_string() + &bmarks_count];
-        let t = Table::new(highlighted_bmarks_title.iter(), kek)
+        let t = Table::new(highlighted_bmarks_title.iter(), selection_panel)
             .block(Block::default().borders(Borders::ALL).title("Bookmarks"))
             .highlight_style(selected_style)
             .widths(&[
@@ -69,17 +71,18 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
 
         f.render_widget(t, chunks[1]);
 
-        let input_string = &app.search_string;
+        // add bookmark field
+        let input_string = &app.new_bookmark_name;
         let lines = Text::from((input_string).as_str());
         let input = Paragraph::new(lines).block(
             Block::default()
                 .borders(Borders::ALL)
                 .title(Span::styled(
-                "Search",
-                Style::default().fg(Color::White).bg(Color::Black),     
+                "Add new bookmark: ",
+                Style::default().fg(Color::White),
                 ))
             );
-        f.render_widget(input, chunks[0]);
+        f.render_widget(input, chunks[2]);
     })
 }
 

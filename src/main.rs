@@ -26,7 +26,7 @@ use tui::backend::TermionBackend;
 
 fn main() -> Result<(), Error> {
     let stdin = stdin();
-    let mut stdout = MouseTerminal::from(stdout().into_raw_mode().unwrap());
+    let stdout = MouseTerminal::from(stdout().into_raw_mode().unwrap());
 
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
@@ -50,8 +50,9 @@ fn main() -> Result<(), Error> {
                 Key::Backspace => app.remove_char(),
                 Key::Up => app.on_up(),
                 Key::Down => app.on_down(),
-                Key::Char('\n') => app.open_bookmark(),
+                Key::Char('\n') => app.resolve_enter(),
                 Key::Ctrl('u') => app.wipe_line(),
+                Key::Char('`') => { app.change_mode() },
                 Key::Char(c) => { app.add_char(c) },
                 _ => {}
             }
