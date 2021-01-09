@@ -3,24 +3,24 @@ use clipboard;
 use clipboard::ClipboardProvider;
 use clipboard::ClipboardContext;
 
-use crate::models::bookmarks::{Bookmarks, Bookmark};
+use crate::models::bookmarks::Bookmark;
 
 pub struct App {
     pub current_mode: Mode,
     pub search_string: String,
     pub new_bookmark_name: String,
-    pub bookmarks: Bookmarks,
+    pub bookmarks: Vec<Bookmark>,
     pub filtered_bookmarks: Vec<Bookmark>,
     pub selected_bookmark_idx: usize,
 }
 
 impl App {
-    pub fn new(bookmarks: Bookmarks) -> App {
+    pub fn new(bookmarks: Vec<Bookmark>) -> App {
         App {
             current_mode: Mode::Search,
             search_string: String::from(""),
             new_bookmark_name: String::from(""),
-            filtered_bookmarks: bookmarks.items.clone(),
+            filtered_bookmarks: bookmarks.clone(),
             bookmarks: bookmarks,
             selected_bookmark_idx: 0
         }
@@ -56,7 +56,7 @@ impl App {
             Mode::AddBookmark => {
                 let bmark_name = self.new_bookmark_name.clone();
                 match Bookmark::create(bmark_name) {
-                    Ok(bmark) => self.bookmarks.add_bookmark(bmark),
+                    Ok(bmark) => self.bookmarks.push(bmark),
                     Err(e) => panic!(e)
                 }
                 self.new_bookmark_name = "".to_string();
@@ -88,7 +88,7 @@ impl App {
                 }
             },
             Err(e) => {
-                // return Err(e)
+                // panic!(e)
             },
         };
     }

@@ -12,7 +12,7 @@ use tui::{
     style::{Style, Color},
 };
 
-use crate::models::bookmarks::{Bookmarks, Bookmark};
+use crate::models::bookmarks::{Bookmark};
 use super::app::App;
 use sublime_fuzzy::best_match;
 
@@ -87,16 +87,16 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
     })
 }
 
-pub fn get_lines<'a>(bmarks: &'a mut Bookmarks, search_string: &String, filtered_bmarks: &mut Vec<Bookmark>) -> Vec<String> {
+pub fn get_lines<'a>(bmarks: &'a mut Vec<Bookmark>, search_string: &String, filtered_bmarks: &mut Vec<Bookmark>) -> Vec<String> {
     // TODO: try to remove dereferencing && decrease number of parameters
 
     if *search_string == String::from("") {
-        *filtered_bmarks = bmarks.items.clone();
-        return bmarks.collect_urls()
+        *filtered_bmarks = bmarks.clone();
+        return bmarks.iter().map(|bookmark| bookmark.url()).collect()
     }
 
     let mut lines: Vec<Line> = vec![];
-    for bmark in &bmarks.items {
+    for bmark in bmarks {
         match best_match(search_string, &bmark.url) {
             Some(value) => { 
                 lines.push(Line::new(value.score(), bmark.clone()));

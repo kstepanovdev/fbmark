@@ -19,13 +19,12 @@ use termion::{
     },
     raw::IntoRawMode,
 };
-
-use models::bookmarks::Bookmarks;
-
 use app::App;
 
 use tui::Terminal;
 use tui::backend::TermionBackend;
+
+use models::bookmarks::Bookmark;
 
 fn main() -> Result<(), Error> {
     let stdin = stdin();
@@ -36,7 +35,7 @@ fn main() -> Result<(), Error> {
 
     terminal.clear()?;
 
-    let bookmarks = match Bookmarks::new() {
+    let bookmarks = match Bookmark::collect_all() {
         Ok(bmarks) => bmarks,
         Err(e) => panic!(e)
     };

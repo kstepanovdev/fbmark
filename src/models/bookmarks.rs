@@ -4,7 +4,6 @@ use rusqlite::{params, Connection, Result, NO_PARAMS};
 pub struct Bookmark {
     pub id: i64,
     pub url: String,
-    // tags: Vec<String>,
 }
 
 impl Bookmark {
@@ -32,18 +31,7 @@ impl Bookmark {
         Ok(bmark)
     }
 
-    pub fn url(&self) -> String {
-        self.url.clone()
-    }
-}
-
-pub struct Bookmarks {
-    pub items: Vec<Bookmark>,
-    pub highlighted_item_idx: isize
-}
-
-impl Bookmarks {
-    pub fn new() -> Result<Bookmarks, rusqlite::Error> {
+    pub fn collect_all() -> Result<Vec<Bookmark>, rusqlite::Error> {
         let conn = Connection::open("fbmark.db")?;
 
         let mut stmt = conn.prepare("SELECT id, url FROM bookmarks")?;
@@ -60,14 +48,10 @@ impl Bookmarks {
             bmarks.push(bmark.unwrap());
         };
 
-        Ok(Bookmarks { items: bmarks, highlighted_item_idx: 0 })
-    }
-    
-    pub fn add_bookmark(&mut self, bookmark: Bookmark) {
-        self.items.push(bookmark);
+        Ok(bmarks)
     }
 
-    pub fn collect_urls(&self) -> Vec<String> {
-        self.items.iter().map(|bookmark| bookmark.url()).collect()
+    pub fn url(&self) -> String {
+        self.url.clone()
     }
 }
