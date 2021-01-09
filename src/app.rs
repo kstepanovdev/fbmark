@@ -35,7 +35,7 @@ impl App {
         *self.select_field() = String::from("");
     }
     pub fn on_up(&mut self) {
-        if self.selected_bookmark_idx > 0 {
+        if self.filtered_bookmarks.len() > 0 {
             self.selected_bookmark_idx -= 1;
         }
     }
