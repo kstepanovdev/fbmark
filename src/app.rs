@@ -44,6 +44,9 @@ impl App {
             self.selected_bookmark_idx += 1;
         }
     }
+    pub fn on_delete(&mut self) {
+        println!("Mock");
+    }
     pub fn resolve_enter(&mut self) {
         match self.current_mode {
             Mode::Search => {

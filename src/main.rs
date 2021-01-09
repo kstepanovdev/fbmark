@@ -20,7 +20,7 @@ use termion::{
     raw::IntoRawMode,
 };
 
-use models::bookmarks::{Bookmark, Bookmarks};
+use models::bookmarks::Bookmarks;
 
 use app::App;
 
@@ -36,17 +36,10 @@ fn main() -> Result<(), Error> {
 
     terminal.clear()?;
 
-    let mut bookmarks = Bookmarks::new();
-
-    match Bookmark::create(String::from("https://lichess.org/")) {
-        Ok(bmark) => bookmarks.add_bookmark(bmark),
+    let bookmarks = match Bookmarks::new() {
+        Ok(bmarks) => bmarks,
         Err(e) => panic!(e)
-    }
-    match Bookmark::create(String::from("https://github.com/")) {
-        Ok(bmark) => bookmarks.add_bookmark(bmark),
-        Err(e) => panic!(e)
-    }
-
+    };
     let mut app = App::new(bookmarks);
 
     ui::draw(&mut app, &mut terminal);
@@ -61,6 +54,7 @@ fn main() -> Result<(), Error> {
                 Key::Backspace => app.remove_char(),
                 Key::Up => app.on_up(),
                 Key::Down => app.on_down(),
+                Key::Delete => app.on_delete(),
                 Key::Char('\n') => app.resolve_enter(),
                 Key::Ctrl('u') => app.wipe_line(),
                 Key::Ctrl('v') => app.paste_from_clipboard(),

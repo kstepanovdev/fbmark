@@ -1,4 +1,4 @@
-use rusqlite::{params, Connection, Result};
+use rusqlite::{params, Connection, Result, NO_PARAMS};
 
 #[derive(Clone, Debug)]
 pub struct Bookmark {
@@ -11,13 +11,21 @@ impl Bookmark {
     pub fn create(url: String) -> Result<Bookmark, rusqlite::Error> {
         let conn = Connection::open("fbmark.db")?;
 
+        conn.execute(
+            "create table if not exists bookmarks (
+                 id integer primary key,
+                 url text not null
+             )",
+            NO_PARAMS,
+        )?;
+
         let bmark = Bookmark {
             id: conn.last_insert_rowid() + 1,
             url: url,
         };
 
         conn.execute(
-            "INSERT INTO bookmarks (url) values (?1)",
+            "INSERT INTO bookmarks (url) VALUES (?1)",
             params![bmark.url],
         )?;
 
@@ -35,8 +43,24 @@ pub struct Bookmarks {
 }
 
 impl Bookmarks {
-    pub fn new() -> Bookmarks {
-        Bookmarks { items: Vec::new(), highlighted_item_idx: 0 }
+    pub fn new() -> Result<Bookmarks, rusqlite::Error> {
+        let conn = Connection::open("fbmark.db")?;
+
+        let mut stmt = conn.prepare("SELECT id, url FROM bookmarks")?;
+        let collector: Vec::<String> = vec![];
+        let bmarks_iter = stmt.query_map(collector.iter(), |row| {
+            Ok(Bookmark {
+                id: row.get(0)?,
+                url: row.get(1)?,
+            })
+        })?;
+
+        let mut bmarks = vec![];
+        for bmark in bmarks_iter {
+            bmarks.push(bmark.unwrap());
+        };
+
+        Ok(Bookmarks { items: bmarks, highlighted_item_idx: 0 })
     }
     
     pub fn add_bookmark(&mut self, bookmark: Bookmark) {
