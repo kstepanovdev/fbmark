@@ -1,5 +1,6 @@
 mod ui;
 mod app; 
+mod models;
 
 use std::io::{
     Write,
@@ -18,8 +19,10 @@ use termion::{
     },
     raw::IntoRawMode,
 };
+
+use models::bookmarks::{Bookmark, Bookmarks};
+
 use app::App;
-use app::{Bookmark, Bookmarks};
 
 use tui::Terminal;
 use tui::backend::TermionBackend;
@@ -34,8 +37,16 @@ fn main() -> Result<(), Error> {
     terminal.clear()?;
 
     let mut bookmarks = Bookmarks::new();
-    bookmarks.add_bookmark(Bookmark::new(String::from("https://lichess.org/")));
-    bookmarks.add_bookmark(Bookmark::new(String::from("https://github.com/")));
+
+    match Bookmark::create(String::from("https://lichess.org/")) {
+        Ok(bmark) => bookmarks.add_bookmark(bmark),
+        Err(e) => panic!(e)
+    }
+    match Bookmark::create(String::from("https://github.com/")) {
+        Ok(bmark) => bookmarks.add_bookmark(bmark),
+        Err(e) => panic!(e)
+    }
+
     let mut app = App::new(bookmarks);
 
     ui::draw(&mut app, &mut terminal);

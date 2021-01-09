@@ -1,8 +1,9 @@
-extern crate open;
-extern crate clipboard;
-
+use open;
+use clipboard;
 use clipboard::ClipboardProvider;
 use clipboard::ClipboardContext;
+
+use crate::models::bookmarks::{Bookmarks, Bookmark};
 
 pub struct App {
     pub current_mode: Mode,
@@ -51,8 +52,11 @@ impl App {
             }
             Mode::AddBookmark => {
                 let bmark_name = self.new_bookmark_name.clone();
+                match Bookmark::create(bmark_name) {
+                    Ok(bmark) => self.bookmarks.add_bookmark(bmark),
+                    Err(e) => panic!(e)
+                }
                 self.new_bookmark_name = "".to_string();
-                self.bookmarks.add_bookmark(Bookmark::new(bmark_name));
                 self.current_mode = Mode::Search;
             }
         }
@@ -94,41 +98,4 @@ pub enum Mode {
 
 pub enum Event<I> {
     Input(I),
-} 
-
-pub struct Bookmarks {
-    pub items: Vec<Bookmark>,
-    pub highlighted_item_idx: isize
-}
-
-impl Bookmarks {
-    pub fn new() -> Bookmarks {
-        Bookmarks { items: Vec::new(), highlighted_item_idx: 0 }
-    }
-    
-    pub fn add_bookmark(&mut self, bookmark: Bookmark) {
-        self.items.push(bookmark);
-    }
-
-    pub fn collect_urls(&self) -> Vec<String> {
-        self.items.iter().map(|bookmark| bookmark.url()).collect()
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Bookmark {
-    pub url: String,
-    tags: Vec<String>,
-}
-
-impl Bookmark {
-    pub fn new(url: String) -> Bookmark {
-        Bookmark {
-            url,
-            tags: Vec::new()
-        }
-    }
-    pub fn url(&self) -> String {
-        self.url.clone()
-    }
 }

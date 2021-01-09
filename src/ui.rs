@@ -12,7 +12,8 @@ use tui::{
     style::{Style, Color},
 };
 
-use super::app::{App, Bookmark, Bookmarks};
+use crate::models::bookmarks::{Bookmarks, Bookmark};
+use super::app::App;
 use sublime_fuzzy::best_match;
 
 pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(), io::Error> {
