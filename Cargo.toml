@@ -13,3 +13,4 @@ tui = "*"
 sublime_fuzzy = "0.7.0"
 clipboard = "0.5.0"
 rusqlite = "0.24.2"
+uuid = { version = "0.8", features = ["serde", "v4"] }

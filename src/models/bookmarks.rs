@@ -1,8 +1,9 @@
 use rusqlite::{params, Connection, Result, NO_PARAMS};
+use uuid::Uuid;
 
 #[derive(Clone, Debug)]
 pub struct Bookmark {
-    pub id: i64,
+    pub id: Uuid,
     pub url: String,
 }
 
@@ -12,15 +13,15 @@ impl Bookmark {
 
         conn.execute(
             "create table if not exists bookmarks (
-                 id integer primary key,
+                 id text primary key,
                  url text not null
              )",
             NO_PARAMS,
         )?;
 
         let bmark = Bookmark {
-            id: conn.last_insert_rowid() + 1,
-            url: url,
+            id: Uuid::new_v4(),
+            url,
         };
 
         conn.execute(
@@ -35,7 +36,7 @@ impl Bookmark {
         let conn = Connection::open("fbmark.db")?;
 
         let mut stmt = conn.prepare("SELECT id, url FROM bookmarks")?;
-        let collector: Vec::<String> = vec![];
+        let collector: Vec<String> = vec![];
         let bmarks_iter = stmt.query_map(collector.iter(), |row| {
             Ok(Bookmark {
                 id: row.get(0)?,
