@@ -4,6 +4,8 @@ use clipboard::ClipboardProvider;
 use clipboard::ClipboardContext;
 
 use crate::models::bookmarks::Bookmark;
+use rusqlite::{params, Connection};
+
 
 pub struct App {
     pub current_mode: Mode,
@@ -35,17 +37,34 @@ impl App {
         *self.select_field() = String::from("");
     }
     pub fn on_up(&mut self) {
-        if self.filtered_bookmarks.len() {
+        if self.filtered_bookmarks.len() > 0 && self.selected_bookmark_idx > 0  {
             self.selected_bookmark_idx -= 1;
         }
     }
     pub fn on_down(&mut self) {
-        if self.selected_bookmark_idx != self.filtered_bookmarks.len() - 1 {
+        if self.filtered_bookmarks.len() > 0 && self.selected_bookmark_idx < self.filtered_bookmarks.len() - 1 {
             self.selected_bookmark_idx += 1;
         }
     }
     pub fn on_delete(&mut self) {
-        println!("Mock");
+        if self.filtered_bookmarks.len() == 0 {
+            return
+        }
+
+        let id_for_delete = &self.filtered_bookmarks[self.selected_bookmark_idx].id;
+        let conn = Connection::open("fbmark.db").unwrap();
+
+        conn.execute(
+            "DELETE FROM bookmarks WHERE id=?1",
+            params![id_for_delete],
+        ).unwrap();
+
+        self.bookmarks = Bookmark::collect_all().unwrap();
+        self.filtered_bookmarks.remove(self.selected_bookmark_idx);
+
+        if self.selected_bookmark_idx != 0 && self.selected_bookmark_idx >= self.filtered_bookmarks.len() {
+            self.selected_bookmark_idx -= 1;
+        }
     }
     pub fn resolve_enter(&mut self) {
         match self.current_mode {

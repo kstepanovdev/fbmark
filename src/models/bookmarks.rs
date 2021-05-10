@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 #[derive(Clone, Debug)]
 pub struct Bookmark {
-    pub id: Uuid,
+    pub id: String,
     pub url: String,
 }
 
@@ -13,20 +13,20 @@ impl Bookmark {
 
         conn.execute(
             "create table if not exists bookmarks (
-                 id text primary key,
+                 id text primary key not null,
                  url text not null
              )",
             NO_PARAMS,
         )?;
 
         let bmark = Bookmark {
-            id: Uuid::new_v4(),
+            id: Uuid::new_v4().to_string(),
             url,
         };
 
         conn.execute(
-            "INSERT INTO bookmarks (url) VALUES (?1)",
-            params![bmark.url],
+            "INSERT INTO bookmarks (id, url) VALUES (?1, ?2)",
+            params![bmark.id, bmark.url],
         )?;
 
         Ok(bmark)
@@ -38,9 +38,11 @@ impl Bookmark {
         let mut stmt = conn.prepare("SELECT id, url FROM bookmarks")?;
         let collector: Vec<String> = vec![];
         let bmarks_iter = stmt.query_map(collector.iter(), |row| {
+            let extracted_uuid = row.get(0)?;
+            let extracted_url = row.get(1)?;
             Ok(Bookmark {
-                id: row.get(0)?,
-                url: row.get(1)?,
+                id: extracted_uuid,
+                url: extracted_url,
             })
         })?;
 

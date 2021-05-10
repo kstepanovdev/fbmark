@@ -59,8 +59,10 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
             }
         );
 
-        let bmarks_count: String = app.filtered_bookmarks.len().to_string();
-        let highlighted_bmarks_title = ["Found bookmarks: ".to_string() + &bmarks_count];
+        // TODO: refactor highlighted title
+        let filtered_bmarks_count = app.filtered_bookmarks.len().to_string();
+        let total_bmarks_count = app.bookmarks.len().to_string();
+        let highlighted_bmarks_title = [format!("{}/{}", filtered_bmarks_count, total_bmarks_count)];
         let t = Table::new(highlighted_bmarks_title.iter(), selection_panel)
             .block(Block::default().borders(Borders::ALL).title("Bookmarks"))
             .highlight_style(selected_style)
