@@ -1,3 +1,5 @@
+// use std::{fmt::Result, future::Ready};
+
 use rusqlite::{params, Connection, Result, NO_PARAMS};
 use uuid::Uuid;
 
@@ -8,16 +10,22 @@ pub struct Bookmark {
 }
 
 impl Bookmark {
-    pub fn create(url: String) -> Result<Bookmark, rusqlite::Error> {
+    pub fn initialize() -> Result<(), rusqlite::Error> {
         let conn = Connection::open("fbmark.db")?;
 
         conn.execute(
             "create table if not exists bookmarks (
-                 id text primary key not null,
+                 id text primary key not null unique,
                  url text not null
              )",
             NO_PARAMS,
-        )?;
+        );
+        Ok(())
+    }
+
+    pub fn create(url: String) -> Result<Bookmark, rusqlite::Error> {
+        let conn = Connection::open("fbmark.db")?;
+
 
         let bmark = Bookmark {
             id: Uuid::new_v4().to_string(),

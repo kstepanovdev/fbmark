@@ -35,6 +35,7 @@ fn main() -> Result<(), Error> {
 
     terminal.clear()?;
 
+    Bookmark::initialize();
     let bookmarks = match Bookmark::collect_all() {
         Ok(bmarks) => bmarks,
         Err(e) => panic!(e)
