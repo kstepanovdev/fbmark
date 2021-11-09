@@ -2,7 +2,10 @@ use open;
 use clipboard;
 use clipboard::ClipboardProvider;
 use clipboard::ClipboardContext;
+use termion::color::LightBlack;
+use tui::widgets::ListState;
 
+use crate::models::bookmarks;
 use crate::models::bookmarks::Bookmark;
 use rusqlite::{params, Connection};
 
@@ -14,6 +17,7 @@ pub struct App {
     pub bookmarks: Vec<Bookmark>,
     pub filtered_bookmarks: Vec<Bookmark>,
     pub selected_bookmark_idx: usize,
+    pub bookmarks_state: ListState,
 }
 
 impl App {
@@ -24,7 +28,8 @@ impl App {
             new_bookmark_name: String::from(""),
             filtered_bookmarks: bookmarks.clone(),
             bookmarks: bookmarks,
-            selected_bookmark_idx: 0
+            selected_bookmark_idx: 0,
+            bookmarks_state: ListState::default(),
         }
     }
     pub fn add_char(&mut self, c: char) {
@@ -37,14 +42,31 @@ impl App {
         *self.select_field() = String::from("");
     }
     pub fn on_up(&mut self) {
-        if self.filtered_bookmarks.len() > 0 && self.selected_bookmark_idx > 0  {
-            self.selected_bookmark_idx -= 1;
-        }
+        let i = match self.bookmarks_state.selected() {
+            Some(i) => {
+                if i >= self.filtered_bookmarks.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.bookmarks_state.select(Some(i)); 
     }
+
     pub fn on_down(&mut self) {
-        if self.filtered_bookmarks.len() > 0 && self.selected_bookmark_idx < self.filtered_bookmarks.len() - 1 {
-            self.selected_bookmark_idx += 1;
-        }
+        let i = match self.bookmarks_state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.filtered_bookmarks.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.bookmarks_state.select(Some(i));
     }
     pub fn on_delete(&mut self) {
         if self.filtered_bookmarks.len() == 0 {
