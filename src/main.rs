@@ -1,28 +1,17 @@
-mod ui;
-mod app; 
+mod app;
 mod models;
+mod ui;
 
-use std::io::{
-    Write,
-    stdout,
-    stdin,
-    Error
-};
+use app::App;
+use std::io::{stdin, stdout, Error, Write};
 use termion::{
-    event::{
-        Key,
-        Event,
-    },
-    input::{
-        TermRead,
-        MouseTerminal
-    },
+    event::{Event, Key},
+    input::{MouseTerminal, TermRead},
     raw::IntoRawMode,
 };
-use app::App;
 
-use tui::Terminal;
 use tui::backend::TermionBackend;
+use tui::Terminal;
 
 use models::bookmarks::Bookmark;
 
@@ -38,32 +27,32 @@ fn main() -> Result<(), Error> {
     Bookmark::initialize();
     let bookmarks = match Bookmark::collect_all() {
         Ok(bmarks) => bmarks,
-        Err(e) => panic!(e)
+        Err(e) => panic!(e),
     };
     let mut app = App::new(bookmarks);
 
     ui::draw(&mut app, &mut terminal);
 
     // loop {
-        for c in stdin.keys() {
-            match c.unwrap() {
-                Key::Esc => {
-                    terminal.clear()?;
-                    break
-                },
-                Key::Backspace => app.remove_char(),
-                Key::Up => app.on_up(),
-                Key::Down => app.on_down(),
-                Key::Delete => app.on_delete(),
-                Key::Char('\n') => app.resolve_enter(),
-                Key::Ctrl('u') => app.wipe_line(),
-                Key::Ctrl('v') => app.paste_from_clipboard(),
-                Key::Char('`') => { app.change_mode() },
-                Key::Char(c) => { app.add_char(c) },
-                _ => {}
+    for c in stdin.keys() {
+        match c.unwrap() {
+            Key::Esc => {
+                terminal.clear()?;
+                break;
             }
-            ui::draw(&mut app, &mut terminal);
+            Key::Backspace => app.remove_char(),
+            Key::Up => app.on_up(),
+            Key::Down => app.on_down(),
+            Key::Delete => app.on_delete(),
+            Key::Char('\n') => app.resolve_enter(),
+            Key::Ctrl('u') => app.wipe_line(),
+            Key::Ctrl('v') => app.paste_from_clipboard(),
+            Key::Char('`') => app.change_mode(),
+            Key::Char(c) => app.add_char(c),
+            _ => {}
         }
+        ui::draw(&mut app, &mut terminal);
+    }
     // }
 
     Ok(())

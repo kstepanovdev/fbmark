@@ -1,5 +1,3 @@
-// use std::{fmt::Result, future::Ready};
-
 use rusqlite::{params, Connection, Result, NO_PARAMS};
 use uuid::Uuid;
 
@@ -25,7 +23,6 @@ impl Bookmark {
 
     pub fn create(url: String) -> Result<Bookmark, rusqlite::Error> {
         let conn = Connection::open("fbmark.db")?;
-
 
         let bmark = Bookmark {
             id: Uuid::new_v4().to_string(),
@@ -57,7 +54,7 @@ impl Bookmark {
         let mut bmarks = vec![];
         for bmark in bmarks_iter {
             bmarks.push(bmark.unwrap());
-        };
+        }
 
         Ok(bmarks)
     }
