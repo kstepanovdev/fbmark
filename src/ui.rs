@@ -46,6 +46,12 @@ pub fn draw<B: Backend>(mut app: &mut App, terminal: &mut Terminal<B>) -> Result
                 .title(Span::styled("Search", Style::default().fg(Color::White))),
         );
         f.render_widget(input, chunks[0]);
+        if is_search_mode {
+            f.set_cursor(
+                chunks[0].x + app.search_string.len() as u16 + 1,
+                chunks[0].y + 1,
+            );
+        }
 
         // selection panel
         let total_bmarks_count = app.bookmarks.len().clone();
@@ -89,6 +95,12 @@ pub fn draw<B: Backend>(mut app: &mut App, terminal: &mut Terminal<B>) -> Result
                 )),
         );
         f.render_widget(input, chunks[2]);
+        if !is_search_mode {
+            f.set_cursor(
+                chunks[2].x + app.new_bookmark_name.len() as u16 + 1,
+                chunks[2].y + 1,
+            );
+        }
     })
 }
 
