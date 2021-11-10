@@ -9,10 +9,15 @@ use tui::{
 };
 
 use super::app::App;
+use super::app::Mode;
 use crate::models::bookmarks::Bookmark;
 use sublime_fuzzy::best_match;
 
 pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(), io::Error> {
+    let selected_style = Style::default().fg(Color::Yellow);
+    let default_style = Style::default().fg(Color::White);
+    let is_search_mode = app.current_mode == Mode::Search;
+
     terminal.draw(|f| {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -33,12 +38,16 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
         let input = Paragraph::new(lines).block(
             Block::default()
                 .borders(Borders::ALL)
+                .border_style(if is_search_mode {
+                    selected_style
+                } else {
+                    default_style
+                })
                 .title(Span::styled("Search", Style::default().fg(Color::White))),
         );
         f.render_widget(input, chunks[0]);
 
         // selection panel
-        let selected_style = Style::default().fg(Color::Yellow);
         let total_bmarks_count = app.bookmarks.len().clone();
         let bmark_rows = get_lines(
             &mut app.bookmarks,
@@ -52,7 +61,16 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
         );
 
         let list = List::new(bmark_rows)
-            .block(Block::default().title(bmarks_title).borders(Borders::ALL))
+            .block(
+                Block::default()
+                    .title(bmarks_title)
+                    .borders(Borders::ALL)
+                    .border_style(if is_search_mode {
+                        selected_style
+                    } else {
+                        default_style
+                    }),
+            )
             .style(Style::default().fg(Color::White))
             .highlight_style(selected_style)
             .highlight_symbol(">>");
@@ -61,9 +79,19 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
         // add bookmark field
         let input_string = &app.new_bookmark_name;
         let lines = Text::from((input_string).as_str());
-        let input = Paragraph::new(lines).block(Block::default().borders(Borders::ALL).title(
-            Span::styled("Add new bookmark: ", Style::default().fg(Color::White)),
-        ));
+        let input = Paragraph::new(lines).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_style(if is_search_mode {
+                    default_style
+                } else {
+                    selected_style
+                })
+                .title(Span::styled(
+                    "Add new bookmark: ",
+                    Style::default().fg(Color::White),
+                )),
+        );
         f.render_widget(input, chunks[2]);
     })
 }

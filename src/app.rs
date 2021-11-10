@@ -106,9 +106,7 @@ impl App {
                     let url = self.filtered_bookmarks[index].url();
                     open::that(url).unwrap();
                 }
-                None => {
-                    panic!("Index cannot be found")
-                }
+                None => {}
             },
             Mode::AddBookmark => {
                 let bmark_name = self.new_bookmark_name.clone();
@@ -145,12 +143,13 @@ impl App {
                 }
             }
             Err(e) => {
-                // panic!(e)
+                panic!("{}", e)
             }
         };
     }
 }
 
+#[derive(PartialEq)]
 pub enum Mode {
     Search,
     AddBookmark,
