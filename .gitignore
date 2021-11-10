@@ -2,3 +2,4 @@
 Cargo.lock
 .vscode
 fbmark.db
+.idea
