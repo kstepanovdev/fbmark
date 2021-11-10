@@ -13,7 +13,7 @@ use super::app::Mode;
 use crate::models::bookmarks::Bookmark;
 use sublime_fuzzy::best_match;
 
-pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(), io::Error> {
+pub fn draw<B: Backend>(mut app: &mut App, terminal: &mut Terminal<B>) -> Result<(), io::Error> {
     let selected_style = Style::default().fg(Color::Yellow);
     let default_style = Style::default().fg(Color::White);
     let is_search_mode = app.current_mode == Mode::Search;
@@ -49,11 +49,7 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
 
         // selection panel
         let total_bmarks_count = app.bookmarks.len().clone();
-        let bmark_rows = get_lines(
-            &mut app.bookmarks,
-            &app.search_string,
-            &mut app.filtered_bookmarks,
-        );
+        let bmark_rows = get_lines(&mut app);
         let filtered_bmarks_count = app.filtered_bookmarks.len();
         let bmarks_title = format!(
             "Bookmarks -- {}/{}",
@@ -96,24 +92,21 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
     })
 }
 
-pub fn get_lines<'a>(
-    bmarks: &'a mut Vec<Bookmark>,
-    search_string: &String,
-    filtered_bmarks: &mut Vec<Bookmark>,
-) -> Vec<ListItem<'a>> {
+pub fn get_lines<'a>(app: &mut App) -> Vec<ListItem<'a>> {
     // TODO: try to remove dereferencing && decrease number of parameters
 
-    if *search_string == String::from("") {
-        *filtered_bmarks = bmarks.clone();
-        return bmarks
+    if app.search_string == String::from("") {
+        app.filtered_bookmarks = app.bookmarks.clone();
+        return app
+            .bookmarks
             .iter()
             .map(|bookmark| ListItem::new(bookmark.url()))
             .collect::<Vec<ListItem>>();
     }
 
     let mut lines: Vec<Line> = vec![];
-    for bmark in bmarks {
-        match best_match(search_string, &bmark.url) {
+    for bmark in &app.bookmarks {
+        match best_match(&app.search_string, &bmark.url) {
             Some(value) => {
                 lines.push(Line::new(value.score(), bmark.clone()));
             }
@@ -122,9 +115,9 @@ pub fn get_lines<'a>(
     }
 
     lines.sort_by_key(|x| x.score);
-    *filtered_bmarks = lines.into_iter().map(|x| x.bmark).collect();
-    filtered_bmarks
-        .into_iter()
+    app.filtered_bookmarks = lines.into_iter().map(|x| x.bmark).collect();
+    app.filtered_bookmarks
+        .iter()
         .map(|x| ListItem::new(x.url()))
         .collect::<Vec<ListItem>>()
 }
