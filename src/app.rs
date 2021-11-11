@@ -1,7 +1,5 @@
-use clipboard;
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
-use open;
 use tui::widgets::ListState;
 
 use crate::models::bookmarks::Bookmark;
