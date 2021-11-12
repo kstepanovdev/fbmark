@@ -1,5 +1,6 @@
 mod app;
 mod models;
+mod tagpacker_adapter;
 mod ui;
 
 use app::App;
@@ -24,16 +25,22 @@ fn main() -> Result<(), Error> {
 
     terminal.clear()?;
 
-    Bookmark::initialize();
+    match Bookmark::initialize() {
+        Err(e) => panic!("{}", e),
+        _ => {}
+    }
+
     let bookmarks = match Bookmark::collect_all() {
         Ok(bmarks) => bmarks,
-        Err(e) => panic!(e),
+        Err(e) => panic!("{}", e),
     };
     let mut app = App::new(bookmarks);
 
-    ui::draw(&mut app, &mut terminal);
+    match ui::draw(&mut app, &mut terminal) {
+        Err(e) => panic!("{}", e),
+        _ => {}
+    }
 
-    // loop {
     for c in stdin.keys() {
         match c.unwrap() {
             Key::Esc => {
@@ -49,27 +56,11 @@ fn main() -> Result<(), Error> {
             Key::Ctrl('v') => app.paste_from_clipboard(),
             Key::Char('`') => app.change_mode(),
             Key::Char(c) => app.add_char(c),
+            Key::F(5) => app.sync_bmarks(),
             _ => {}
         }
         ui::draw(&mut app, &mut terminal);
     }
-    // }
 
     Ok(())
 }
-
-// struct Bookmark {
-//     title: String,
-//     tags: Vec<String>,
-//     url: String,
-// }
-
-// impl Bookmark {
-//     fn new(title: String, tags: Vec<String>, url: String) -> Bookmark {
-//         Bookmark {
-//             title,
-//             tags,
-//             url
-//         }
-//     }
-// }

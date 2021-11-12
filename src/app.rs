@@ -1,8 +1,11 @@
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
+
 use tui::widgets::ListState;
 
 use crate::models::bookmarks::Bookmark;
+use crate::tagpacker_adapter;
+
 use rusqlite::{params, Connection};
 
 pub struct App {
@@ -144,6 +147,9 @@ impl App {
                 panic!("{}", e)
             }
         };
+    }
+
+    pub fn sync_bmarks(&mut self) {
     }
 }
 
