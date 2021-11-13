@@ -152,7 +152,7 @@ impl App {
     pub fn sync_bmarks(&mut self) {
         let bookmarks = tagpacker_adapter::get_links();
         for bookmark in bookmarks {
-            println!("{:?}", bookmark.sourceUrl)
+            println!("{:?}", bookmark)
         }
     }
 }
