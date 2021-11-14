@@ -24,7 +24,7 @@ impl App {
             search_string: String::from(""),
             new_bookmark_name: String::from(""),
             filtered_bookmarks: bookmarks.clone(),
-            bookmarks: bookmarks,
+            bookmarks,
             bookmarks_state: ListState::default(),
         }
     }

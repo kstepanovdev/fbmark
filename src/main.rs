@@ -4,9 +4,9 @@ mod tagpacker_adapter;
 mod ui;
 
 use app::App;
-use std::io::{stdin, stdout, Error, Write};
+use std::io::{stdin, stdout, Error};
 use termion::{
-    event::{Event, Key},
+    event::{Key},
     input::{MouseTerminal, TermRead},
     raw::IntoRawMode,
 };
