@@ -101,7 +101,8 @@ pub fn draw<B: Backend>(mut app: &mut App, terminal: &mut Terminal<B>) -> Result
                 chunks[2].y + 1,
             );
         }
-    })
+    })?;
+    Ok(())
 }
 
 pub fn get_lines<'a>(app: &mut App) -> Vec<ListItem<'a>> {
