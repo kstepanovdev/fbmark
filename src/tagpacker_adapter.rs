@@ -4,33 +4,33 @@ use serde::Deserialize;
 #[derive(Deserialize, Debug)]
 #[warn(non_snake_case)]
 pub struct Link {
-    id: String,
-    title: String,
-    description: Option<String>,
-    sourceUrl: String,
-    isPrivate: bool,
-    thumbnailSource: Option<String>,
-    thumbnailSourceUrl: Option<String>,
-    thumbnailId: Option<String>,
-    thumbnailUrl: Option<String>,
-    url: String,
-    createdAt: String,
-    tags: Vec<Tag>,
+    pub id: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub sourceUrl: String,
+    pub isPrivate: bool,
+    pub thumbnailSource: Option<String>,
+    pub thumbnailSourceUrl: Option<String>,
+    pub thumbnailId: Option<String>,
+    pub thumbnailUrl: Option<String>,
+    pub url: String,
+    pub createdAt: String,
+    pub tags: Vec<Tag>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Tag {
-    id: String,
-    name: String,
-    url: String,
-    pack: Option<Pack>,
+    pub id: String,
+    pub name: String,
+    pub url: String,
+    pub pack: Option<Pack>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Pack {
-    id: String,
-    name: String,
-    color: u16,
+    pub id: String,
+    pub name: String,
+    pub color: u16,
 }
 
 #[tokio::main]

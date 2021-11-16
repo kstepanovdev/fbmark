@@ -6,7 +6,7 @@ mod ui;
 use app::App;
 use std::io::{stdin, stdout, Error};
 use termion::{
-    event::{Key},
+    event::Key,
     input::{MouseTerminal, TermRead},
     raw::IntoRawMode,
 };

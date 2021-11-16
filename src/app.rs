@@ -3,6 +3,7 @@ use clipboard::ClipboardProvider;
 
 use tui::widgets::ListState;
 
+use crate::models::bookmarks;
 use crate::models::bookmarks::Bookmark;
 use crate::tagpacker_adapter;
 
@@ -152,7 +153,13 @@ impl App {
     pub fn sync_bmarks(&mut self) {
         let bookmarks = tagpacker_adapter::get_links();
         for bookmark in bookmarks {
-            println!("{:?}", bookmark)
+            for link in bookmark {
+                Bookmark::create(link.sourceUrl).unwrap();
+            }
+        }
+        match Bookmark::collect_all() {
+            Ok(bookmarks) => self.bookmarks = bookmarks,
+            Err(e) => panic!("{}", e),
         }
     }
 }
@@ -161,8 +168,4 @@ impl App {
 pub enum Mode {
     Search,
     AddBookmark,
-}
-
-pub enum Event<I> {
-    Input(I),
 }
