@@ -151,12 +151,16 @@ impl App {
     }
 
     pub fn sync_bmarks(&mut self) {
-        let bookmarks = tagpacker_adapter::get_links();
-        for bookmark in bookmarks {
-            for link in bookmark {
-                Bookmark::create(link.sourceUrl).unwrap();
+        let result = tagpacker_adapter::get_links();
+        match result {
+            Ok(bookmarks) => {
+                for bookmark in bookmarks {
+                    Bookmark::create(bookmark.sourceUrl).unwrap();
+                }
             }
+            Err(e) => panic!("{}", e),
         }
+
         match Bookmark::collect_all() {
             Ok(bookmarks) => self.bookmarks = bookmarks,
             Err(e) => panic!("{}", e),
