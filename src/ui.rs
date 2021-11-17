@@ -3,7 +3,7 @@ use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout},
     style::{Color, Style},
-    text::{Span, Text},
+    text::{Span, Text, Spans},
     widgets::{Block, Borders, List, ListItem, Paragraph},
     Terminal,
 };
@@ -24,7 +24,7 @@ pub fn draw<B: Backend>(mut app: &mut App, terminal: &mut Terminal<B>) -> Result
             .margin(1)
             .constraints(
                 [
-                    Constraint::Percentage(10),
+                    Constraint::Percentage(20),
                     Constraint::Percentage(60),
                     Constraint::Percentage(20),
                 ]
@@ -79,6 +79,18 @@ pub fn draw<B: Backend>(mut app: &mut App, terminal: &mut Terminal<B>) -> Result
         f.render_stateful_widget(list, chunks[1], &mut app.bookmarks_state);
 
         // add bookmark field
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30),
+                ]
+                .as_ref(),
+            )
+            .split(chunks[2]);
+
         let input_string = &app.new_bookmark_name;
         let lines = Text::from((input_string).as_str());
         let input = Paragraph::new(lines).block(
@@ -94,13 +106,25 @@ pub fn draw<B: Backend>(mut app: &mut App, terminal: &mut Terminal<B>) -> Result
                     Style::default().fg(Color::White),
                 )),
         );
-        f.render_widget(input, chunks[2]);
+        f.render_widget(input, chunks[0]);
         if !is_search_mode {
             f.set_cursor(
-                chunks[2].x + app.new_bookmark_name.len() as u16 + 1,
-                chunks[2].y + 1,
+                chunks[0].x + app.new_bookmark_name.len() as u16 + 1,
+                chunks[0].y + 1,
             );
         }
+
+        let text = vec![
+            Spans::from(Span::raw("• ~ to change modes from Input to Search and vice versa")),
+            Spans::from(Span::raw("• Enter to open selected tab in xdg-defined browser")),
+            Spans::from(Span::raw("• F5 to download tabs from Tagpacker")),
+        ];
+
+        let input = Paragraph::new(text)
+        .block(Block::default().title("Naviagation").borders(Borders::ALL))
+        .style(Style::default().fg(Color::White));
+
+        f.render_widget(input, chunks[1]);
     })?;
     Ok(())
 }

@@ -3,7 +3,6 @@ use clipboard::ClipboardProvider;
 
 use tui::widgets::ListState;
 
-use crate::models::bookmarks;
 use crate::models::bookmarks::Bookmark;
 use crate::tagpacker_adapter;
 
