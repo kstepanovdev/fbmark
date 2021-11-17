@@ -111,7 +111,7 @@ impl App {
             },
             Mode::AddBookmark => {
                 let bmark_name = self.new_bookmark_name.clone();
-                match Bookmark::create(bmark_name) {
+                match Bookmark::create(bmark_name, "".to_string()) {
                     Ok(bmark) => self.bookmarks.push(bmark),
                     Err(e) => panic!("{}", e),
                 }
@@ -154,7 +154,7 @@ impl App {
         match result {
             Ok(bookmarks) => {
                 for bookmark in bookmarks {
-                    Bookmark::create(bookmark.sourceUrl).unwrap();
+                    Bookmark::create(bookmark.sourceUrl, bookmark.title).unwrap();
                 }
             }
             Err(e) => panic!("{}", e),

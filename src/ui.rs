@@ -99,18 +99,23 @@ pub fn draw<B: Backend>(app: &mut App, terminal: &mut Terminal<B>) -> Result<(),
 }
 
 pub fn get_lines<'a>(app: &mut App) -> Vec<ListItem<'a>> {
+    let displayed_string =
+        |title: String, url: String| -> ListItem { ListItem::new(format!("{} {}", title, url)) };
+
     if app.search_string == String::from("") {
         app.filtered_bookmarks = app.bookmarks.clone();
+
         return app
             .bookmarks
             .iter()
-            .map(|bookmark| ListItem::new(bookmark.url()))
+            .map(|bookmark| displayed_string(bookmark.title(), bookmark.url()))
             .collect::<Vec<ListItem>>();
     }
 
     let mut lines: Vec<Line> = vec![];
     for bmark in &app.bookmarks {
-        match best_match(&app.search_string, &bmark.url) {
+        let search_target = format!("{}{}", &bmark.url, &bmark.title);
+        match best_match(&app.search_string, &search_target) {
             Some(value) => {
                 lines.push(Line::new(value.score(), bmark.clone()));
             }
@@ -122,7 +127,7 @@ pub fn get_lines<'a>(app: &mut App) -> Vec<ListItem<'a>> {
     app.filtered_bookmarks = lines.into_iter().map(|x| x.bmark).collect();
     app.filtered_bookmarks
         .iter()
-        .map(|x| ListItem::new(x.url()))
+        .map(|x| displayed_string(x.title(), x.url()))
         .collect::<Vec<ListItem>>()
 }
 

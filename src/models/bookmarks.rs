@@ -5,6 +5,7 @@ use uuid::Uuid;
 pub struct Bookmark {
     pub id: String,
     pub url: String,
+    pub title: String,
 }
 
 impl Bookmark {
@@ -14,24 +15,26 @@ impl Bookmark {
         conn.execute(
             "create table if not exists bookmarks (
                  id text primary key not null unique,
-                 url text not null
+                 url text not null,
+                 title next
              )",
             NO_PARAMS,
         );
         Ok(())
     }
 
-    pub fn create(url: String) -> Result<Bookmark, rusqlite::Error> {
+    pub fn create(url: String, title: String) -> Result<Bookmark, rusqlite::Error> {
         let conn = Connection::open("fbmark.db")?;
 
         let bmark = Bookmark {
             id: Uuid::new_v4().to_string(),
             url,
+            title,
         };
 
         conn.execute(
-            "INSERT INTO bookmarks (id, url) VALUES (?1, ?2)",
-            params![bmark.id, bmark.url],
+            "INSERT INTO bookmarks (id, url, title) VALUES (?1, ?2, ?3)",
+            params![bmark.id, bmark.url, bmark.title],
         )?;
 
         Ok(bmark)
@@ -40,14 +43,16 @@ impl Bookmark {
     pub fn collect_all() -> Result<Vec<Bookmark>, rusqlite::Error> {
         let conn = Connection::open("fbmark.db")?;
 
-        let mut stmt = conn.prepare("SELECT id, url FROM bookmarks")?;
+        let mut stmt = conn.prepare("SELECT id, url, title FROM bookmarks")?;
         let collector: Vec<String> = vec![];
         let bmarks_iter = stmt.query_map(collector.iter(), |row| {
             let extracted_uuid = row.get(0)?;
             let extracted_url = row.get(1)?;
+            let extracted_title = row.get(2)?;
             Ok(Bookmark {
                 id: extracted_uuid,
                 url: extracted_url,
+                title: extracted_title,
             })
         })?;
 
@@ -61,5 +66,9 @@ impl Bookmark {
 
     pub fn url(&self) -> String {
         self.url.clone()
+    }
+
+    pub fn title(&self) -> String {
+        self.title.clone()
     }
 }
