@@ -102,7 +102,7 @@ pub fn get_lines<'a>(app: &mut App) -> Vec<ListItem<'a>> {
     let displayed_string =
         |title: String, url: String| -> ListItem { ListItem::new(format!("{} {}", title, url)) };
 
-    if app.search_string == String::from("") {
+    if app.search_string == *"" {
         app.filtered_bookmarks = app.bookmarks.clone();
 
         return app
@@ -115,11 +115,8 @@ pub fn get_lines<'a>(app: &mut App) -> Vec<ListItem<'a>> {
     let mut lines: Vec<Line> = vec![];
     for bmark in &app.bookmarks {
         let search_target = format!("{}{}", &bmark.url, &bmark.title);
-        match best_match(&app.search_string, &search_target) {
-            Some(value) => {
-                lines.push(Line::new(value.score(), bmark.clone()));
-            }
-            None => {}
+        if let Some(value) = best_match(&app.search_string, &search_target) {
+            lines.push(Line::new(value.score(), bmark.clone()));
         }
     }
 
@@ -151,7 +148,7 @@ pub fn draw_selection_panel<'a>(
     bmark_rows: Vec<ListItem<'a>>,
     ui_state: &UiState,
 ) -> List<'a> {
-    let total_bmarks_count = app.bookmarks.len().clone();
+    let total_bmarks_count = app.bookmarks.len();
     let filtered_bmarks_count = app.filtered_bookmarks.len();
 
     let bmarks_title = format!(

@@ -25,9 +25,8 @@ fn main() -> Result<(), Error> {
 
     terminal.clear()?;
 
-    match Bookmark::initialize() {
-        Err(e) => panic!("{}", e),
-        _ => {}
+    if let Err(e) = Bookmark::initialize() {
+        panic!("{}", e)
     }
 
     let bookmarks = match Bookmark::collect_all() {
@@ -36,9 +35,8 @@ fn main() -> Result<(), Error> {
     };
     let mut app = App::new(bookmarks);
 
-    match ui::draw(&mut app, &mut terminal) {
-        Err(e) => panic!("{}", e),
-        _ => {}
+    if let Err(e) = ui::draw(&mut app, &mut terminal) {
+        panic!("{}", e)
     }
 
     for c in stdin.keys() {

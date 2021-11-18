@@ -38,7 +38,7 @@ impl App {
         *self.select_field() = String::from("");
     }
     pub fn on_up(&mut self) {
-        if self.filtered_bookmarks.len() == 0 {
+        if self.filtered_bookmarks.is_empty() {
             return self.bookmarks_state.select(None);
         };
 
@@ -56,7 +56,7 @@ impl App {
     }
 
     pub fn on_down(&mut self) {
-        if self.filtered_bookmarks.len() == 0 {
+        if self.filtered_bookmarks.is_empty() {
             return self.bookmarks_state.select(None);
         };
 
@@ -74,7 +74,7 @@ impl App {
     }
 
     pub fn on_delete(&mut self) {
-        if self.filtered_bookmarks.len() == 0 || self.bookmarks_state.selected() == None {
+        if self.filtered_bookmarks.is_empty() || self.bookmarks_state.selected() == None {
             return;
         }
 
@@ -90,7 +90,7 @@ impl App {
 
                 self.bookmarks = Bookmark::collect_all().unwrap();
                 self.filtered_bookmarks.remove(index);
-                if self.filtered_bookmarks.len() == 0 {
+                if self.filtered_bookmarks.is_empty() {
                     self.bookmarks_state.select(None)
                 } else {
                     self.on_down()
@@ -102,13 +102,12 @@ impl App {
 
     pub fn resolve_enter(&mut self) {
         match self.current_mode {
-            Mode::Search => match self.bookmarks_state.selected() {
-                Some(index) => {
+            Mode::Search => {
+                if let Some(index) = self.bookmarks_state.selected() {
                     let url = self.filtered_bookmarks[index].url();
                     open::that(url).unwrap();
                 }
-                None => {}
-            },
+            }
             Mode::AddBookmark => {
                 let bmark_name = self.new_bookmark_name.clone();
                 match Bookmark::create(bmark_name, "".to_string()) {
