@@ -35,10 +35,14 @@ pub struct Pack {
 
 #[tokio::main]
 pub async fn get_links() -> Result<Vec<Link>, Box<dyn std::error::Error>> {
-    let resp = reqwest::get("https://tagpacker.com/api/users/56f2b6fe4532800b2ca7a0d4/links")
-        .await?
-        .json::<Vec<Link>>()
-        .await?;
-
-    Ok(resp)
+    let response =
+        reqwest::get("https://tagpacker.com/api/users/56f2b6fe4532800b2ca7a0d4/links").await;
+    match response {
+        Ok(result) => {
+            return Ok(result.json::<Vec<Link>>().await.unwrap());
+        }
+        Err(e) => {
+            panic!("{}", e)
+        }
+    }
 }

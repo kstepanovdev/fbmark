@@ -3,8 +3,9 @@ use clipboard::ClipboardProvider;
 
 use tui::widgets::ListState;
 
+use crate::adapters::tagpacker_adapter;
+use crate::config::Config;
 use crate::models::bookmarks::Bookmark;
-use crate::tagpacker_adapter;
 
 use rusqlite::{params, Connection};
 
@@ -15,10 +16,12 @@ pub struct App {
     pub bookmarks: Vec<Bookmark>,
     pub filtered_bookmarks: Vec<Bookmark>,
     pub bookmarks_state: ListState,
+    pub config: Config,
 }
 
 impl App {
     pub fn new(bookmarks: Vec<Bookmark>) -> App {
+        let config: Config = confy::load("fbmark").unwrap_or_default();
         App {
             current_mode: Mode::Search,
             search_string: String::from(""),
@@ -26,6 +29,7 @@ impl App {
             filtered_bookmarks: bookmarks.clone(),
             bookmarks,
             bookmarks_state: ListState::default(),
+            config,
         }
     }
     pub fn add_char(&mut self, c: char) {

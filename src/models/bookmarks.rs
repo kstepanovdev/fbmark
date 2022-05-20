@@ -1,4 +1,4 @@
-use rusqlite::{params, Connection, Result, NO_PARAMS};
+use rusqlite::{params, Connection, Result};
 use uuid::Uuid;
 
 #[derive(Clone, Debug)]
@@ -18,8 +18,9 @@ impl Bookmark {
                  url text not null,
                  title next
              )",
-            NO_PARAMS,
-        ).unwrap();
+            [],
+        )
+        .unwrap();
         Ok(())
     }
 
@@ -44,8 +45,7 @@ impl Bookmark {
         let conn = Connection::open("fbmark.db")?;
 
         let mut stmt = conn.prepare("SELECT id, url, title FROM bookmarks")?;
-        let collector: Vec<String> = vec![];
-        let bmarks_iter = stmt.query_map(collector.iter(), |row| {
+        let bmarks_iter = stmt.query_map([], |row| {
             let extracted_uuid = row.get(0)?;
             let extracted_url = row.get(1)?;
             let extracted_title = row.get(2)?;

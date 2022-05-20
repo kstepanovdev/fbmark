@@ -1,6 +1,7 @@
+mod adapters;
 mod app;
+mod config;
 mod models;
-mod tagpacker_adapter;
 mod ui;
 
 use app::App;
@@ -25,6 +26,7 @@ fn main() -> Result<(), Error> {
 
     terminal.clear()?;
 
+    // core app
     if let Err(e) = Bookmark::initialize() {
         panic!("{}", e)
     }
@@ -57,7 +59,7 @@ fn main() -> Result<(), Error> {
             Key::F(5) => app.sync_bmarks(),
             _ => {}
         }
-        ui::draw(&mut app, &mut terminal);
+        ui::draw(&mut app, &mut terminal).unwrap();
     }
 
     Ok(())
