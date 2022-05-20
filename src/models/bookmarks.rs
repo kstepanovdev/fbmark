@@ -19,7 +19,7 @@ impl Bookmark {
                  title next
              )",
             NO_PARAMS,
-        );
+        ).unwrap();
         Ok(())
     }
 

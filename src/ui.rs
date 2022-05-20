@@ -8,8 +8,8 @@ use tui::{
     Terminal,
 };
 
-use super::app::App;
-use super::app::Mode;
+use crate::app::App;
+use crate::app::Mode;
 use crate::models::bookmarks::Bookmark;
 use sublime_fuzzy::best_match;
 
@@ -22,7 +22,6 @@ impl Line {
         Line { score, bmark }
     }
 }
-
 pub struct UiState {
     pub selected_style: Style,
     pub default_style: Style,
