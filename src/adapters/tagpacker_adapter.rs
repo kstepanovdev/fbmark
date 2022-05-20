@@ -1,4 +1,3 @@
-// api_key:  56f2b6fe4532800b2ca7a0d4:a474052c-9e14-495f-b9f9-b429e5f3563b
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
@@ -34,9 +33,9 @@ pub struct Pack {
 }
 
 #[tokio::main]
-pub async fn get_links() -> Result<Vec<Link>, Box<dyn std::error::Error>> {
-    let response =
-        reqwest::get("https://tagpacker.com/api/users/56f2b6fe4532800b2ca7a0d4/links").await;
+pub async fn get_links(user_id: &str) -> Result<Vec<Link>, Box<dyn std::error::Error>> {
+    let url = format!("https://tagpacker.com/api/users/{}/links", user_id);
+    let response = reqwest::get(url).await;
     match response {
         Ok(result) => {
             return Ok(result.json::<Vec<Link>>().await.unwrap());

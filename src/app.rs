@@ -153,7 +153,8 @@ impl App {
     }
 
     pub fn sync_bmarks(&mut self) {
-        let result = tagpacker_adapter::get_links();
+        let user_id = &self.config.user_id;
+        let result = tagpacker_adapter::get_links(user_id);
         match result {
             Ok(bookmarks) => {
                 for bookmark in bookmarks {

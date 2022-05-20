@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Config {
-    api_key: String,
+    pub api_key: String,
     pub user_id: String,
 }
 

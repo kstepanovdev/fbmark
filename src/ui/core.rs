@@ -192,12 +192,14 @@ pub fn draw_bookmark_field<'a>(app: &'a mut App, ui_state: &UiState) -> Paragrap
 pub fn draw_navigation_panel<'a>() -> Paragraph<'a> {
     let text = vec![
         Spans::from(Span::raw(
-            "• ~ to change modes from Input to Search and vice versa",
+            "• `~` to change modes from Input to Search and vice versa",
         )),
         Spans::from(Span::raw(
-            "• Enter to open selected tab in xdg-defined browser",
+            "• `Enter` to open selected tab in xdg-defined browser",
         )),
-        Spans::from(Span::raw("• F5 to download tabs from Tagpacker")),
+        Spans::from(Span::raw("• `F5` to download tabs from Tagpacker")),
+        Spans::from(Span::raw("• `del` to delete the bookmark")),
+        Spans::from(Span::raw("• `esc` to exit")),
     ];
 
     Paragraph::new(text)
